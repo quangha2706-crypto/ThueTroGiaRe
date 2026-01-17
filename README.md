@@ -1,8 +1,27 @@
 # ROADMAP XÂY DỰNG WEBSITE TÌM & ĐĂNG TIN CHO THUÊ (TƯƠNG TỰ tromoi.com)
 
+## ✨ NEW: Advanced Search Filter System
+
+**The advanced filter system has been implemented!** 
+
+Features include:
+- 🔍 **Advanced Filters**: Price range, area, amenities, environment, target audiences
+- 🏠 **Amenities**: WC riêng, Máy lạnh, Bếp riêng, Camera an ninh, and more
+- 🌍 **Environment Tags**: Gần trường học, Gần chợ, Khu yên tĩnh, etc.
+- 👥 **Target Audiences**: Sinh viên, Người đi làm, Gia đình, etc.
+- ⭐ **Review System**: Filter by reviews and video reviews
+- 📱 **Mobile Responsive**: Drawer-style filters on mobile devices
+- 🔗 **URL State**: Share search results via URL
+
+**Setup Guide**: See [FILTER_SYSTEM_GUIDE.md](./FILTER_SYSTEM_GUIDE.md) for installation and usage instructions.
+
+---
+
 ## 1. MỤC TIÊU
 Xây dựng website cho phép:
 - Người thuê tìm kiếm phòng trọ / nhà cho thuê theo vị trí, giá, diện tích
+- **[NEW]** Lọc theo tiện nghi, môi trường xung quanh, đối tượng phù hợp
+- **[NEW]** Lọc theo review và video review
 - Chủ nhà đăng và quản lý tin cho thuê
 - Hiển thị danh sách và chi tiết tin thuê
 
@@ -19,9 +38,15 @@ Không sao chép mã nguồn hoặc nội dung độc quyền. Chỉ xây dựng
     - Tỉnh / Quận / Phường
     - Khoảng giá
     - Diện tích
+    - **[NEW]** Tiện nghi (WC riêng, Máy lạnh, v.v.)
+    - **[NEW]** Môi trường (Gần trường, Gần chợ, v.v.)
+    - **[NEW]** Đối tượng phù hợp (Sinh viên, Người đi làm, v.v.)
+    - **[NEW]** Lọc theo review
 - Trang danh sách kết quả
   - Phân trang
   - Sắp xếp theo giá / mới nhất
+  - **[NEW]** Sidebar filter với các bộ lọc nâng cao
+  - **[NEW]** Mobile responsive với drawer filter
 - Trang chi tiết tin
   - Tiêu đề
   - Giá
@@ -29,6 +54,9 @@ Không sao chép mã nguồn hoặc nội dung độc quyền. Chỉ xây dựng
   - Địa chỉ
   - Mô tả
   - Hình ảnh
+  - **[NEW]** Danh sách tiện nghi
+  - **[NEW]** Môi trường xung quanh
+  - **[NEW]** Reviews và video reviews
 
 ### 2.2 Người dùng
 - Đăng ký
@@ -94,6 +122,39 @@ Không sao chép mã nguồn hoặc nội dung độc quyền. Chỉ xây dựng
 - listing_id
 - image_url
 
+### **[NEW]** Amenities (Tiện nghi)
+- id
+- code
+- name
+
+### **[NEW]** EnvironmentTags (Môi trường)
+- id
+- code
+- name
+
+### **[NEW]** TargetAudiences (Đối tượng)
+- id
+- code
+- name
+
+### **[NEW]** Reviews
+- id
+- listing_id
+- user_id
+- rating
+- comment
+- created_at
+
+### **[NEW]** ReviewVideos
+- id
+- review_id
+- video_url
+
+### **[NEW]** Junction Tables
+- listing_amenities
+- listing_environment_tags
+- listing_target_audiences
+
 ---
 
 ## 5. API CẦN XÂY DỰNG
@@ -104,7 +165,7 @@ Không sao chép mã nguồn hoặc nội dung độc quyền. Chỉ xây dựng
 - GET /auth/me
 
 ### Listings
-- GET /listings
+- GET /listings (with advanced filters)
 - GET /listings/{id}
 - POST /listings
 - PUT /listings/{id}
@@ -114,6 +175,11 @@ Không sao chép mã nguồn hoặc nội dung độc quyền. Chỉ xây dựng
 - GET /locations/provinces
 - GET /locations/districts?province_id=
 - GET /locations/wards?district_id=
+
+### **[NEW]** Filters
+- GET /filters/amenities
+- GET /filters/environments
+- GET /filters/audiences
 
 ---
 
@@ -152,7 +218,8 @@ Không sao chép mã nguồn hoặc nội dung độc quyền. Chỉ xây dựng
 
 ## 7. TÍNH NĂNG MỞ RỘNG (SAU MVP)
 - Bản đồ Google Maps
-- Đánh giá / review
+- **[IMPLEMENTED]** Đánh giá / review
+- **[IMPLEMENTED]** Bộ lọc tìm kiếm nâng cao
 - Chat giữa người thuê và chủ nhà
 - Tin nổi bật trả phí
 - SEO & tối ưu tốc độ

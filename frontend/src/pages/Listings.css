@@ -47,6 +47,21 @@
   }
 }
 
+.listings-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.filter-sidebar-wrapper {
+  position: relative;
+}
+
+.listings-content {
+  min-width: 0;
+}
+
 .listings-header {
   margin-bottom: 2rem;
 }
@@ -102,6 +117,12 @@
   animation: spin 1s linear infinite;
 }
 
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .no-listings {
   text-align: center;
   padding: 3rem;
@@ -122,6 +143,15 @@
   animation: fadeIn 0.6s ease-out 0.4s both;
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .pagination .btn {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -133,6 +163,90 @@
 .page-info {
   font-weight: 500;
   color: #4b5563;
+}
+
+.btn-toggle-filters {
+  display: none;
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 12px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-toggle-filters:hover {
+  background: #f5f5f5;
+  border-color: #3498db;
+}
+
+.btn-toggle-filters span {
+  margin-right: 8px;
+}
+
+.mobile-filter-overlay {
+  display: none;
+}
+
+/* Mobile responsive */
+@media (max-width: 1024px) {
+  .listings-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-toggle-filters {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .filter-sidebar-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    pointer-events: none;
+  }
+
+  .filter-sidebar-wrapper.open {
+    pointer-events: auto;
+  }
+
+  .filter-sidebar-wrapper .filter-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 85%;
+    max-width: 350px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    z-index: 1001;
+  }
+
+  .filter-sidebar-wrapper.open .filter-sidebar {
+    transform: translateX(0);
+  }
+
+  .mobile-filter-overlay {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+  }
+
+  .listings-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {

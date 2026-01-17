@@ -1,8 +1,14 @@
 const { Op } = require('sequelize');
+const sequelize = require('../config/database');
 const Listing = require('../models/Listing');
 const ListingImage = require('../models/ListingImage');
 const Location = require('../models/Location');
 const User = require('../models/User');
+const Amenity = require('../models/Amenity');
+const EnvironmentTag = require('../models/EnvironmentTag');
+const TargetAudience = require('../models/TargetAudience');
+const Review = require('../models/Review');
+const ReviewVideo = require('../models/ReviewVideo');
 
 // Get all listings with filters
 exports.getListings = async (req, res) => {
@@ -18,6 +24,11 @@ exports.getListings = async (req, res) => {
       max_price,
       min_area,
       max_area,
+      amenities,
+      environments,
+      audiences,
+      has_review,
+      has_video_review,
       sort = 'created_at',
       order = 'DESC'
     } = req.query;
@@ -42,6 +53,123 @@ exports.getListings = async (req, res) => {
       if (max_area) where.area[Op.lte] = max_area;
     }
 
+    // Build include array for eager loading
+    const include = [
+      {
+        model: User,
+        as: 'user',
+        attributes: ['id', 'name', 'phone', 'email']
+      },
+      {
+        model: ListingImage,
+        as: 'images',
+        limit: 5
+      },
+      {
+        model: Location,
+        as: 'province',
+        attributes: ['id', 'name']
+      },
+      {
+        model: Location,
+        as: 'district',
+        attributes: ['id', 'name']
+      },
+      {
+        model: Location,
+        as: 'ward',
+        attributes: ['id', 'name']
+      }
+    ];
+
+    // Parse array filters
+    const amenityIds = amenities ? (Array.isArray(amenities) ? amenities : [amenities]) : [];
+    const environmentIds = environments ? (Array.isArray(environments) ? environments : [environments]) : [];
+    const audienceIds = audiences ? (Array.isArray(audiences) ? audiences : [audiences]) : [];
+
+    // Add amenities filter if specified
+    if (amenityIds.length > 0) {
+      include.push({
+        model: Amenity,
+        as: 'amenities',
+        through: { attributes: [] },
+        where: { id: { [Op.in]: amenityIds } },
+        required: true
+      });
+    } else {
+      include.push({
+        model: Amenity,
+        as: 'amenities',
+        through: { attributes: [] },
+        required: false
+      });
+    }
+
+    // Add environment tags filter if specified
+    if (environmentIds.length > 0) {
+      include.push({
+        model: EnvironmentTag,
+        as: 'environmentTags',
+        through: { attributes: [] },
+        where: { id: { [Op.in]: environmentIds } },
+        required: true
+      });
+    } else {
+      include.push({
+        model: EnvironmentTag,
+        as: 'environmentTags',
+        through: { attributes: [] },
+        required: false
+      });
+    }
+
+    // Add target audiences filter if specified
+    if (audienceIds.length > 0) {
+      include.push({
+        model: TargetAudience,
+        as: 'targetAudiences',
+        through: { attributes: [] },
+        where: { id: { [Op.in]: audienceIds } },
+        required: true
+      });
+    } else {
+      include.push({
+        model: TargetAudience,
+        as: 'targetAudiences',
+        through: { attributes: [] },
+        required: false
+      });
+    }
+
+    // Add reviews filter if specified
+    const reviewInclude = {
+      model: Review,
+      as: 'reviews',
+      attributes: ['id', 'rating'],
+      required: has_review === 'true',
+      include: []
+    };
+
+    // Add video reviews filter if specified
+    if (has_video_review === 'true') {
+      reviewInclude.include.push({
+        model: ReviewVideo,
+        as: 'videos',
+        attributes: ['id'],
+        required: true
+      });
+      reviewInclude.required = true;
+    } else if (has_review === 'true') {
+      reviewInclude.include.push({
+        model: ReviewVideo,
+        as: 'videos',
+        attributes: ['id'],
+        required: false
+      });
+    }
+
+    include.push(reviewInclude);
+
     // Calculate pagination
     const offset = (page - 1) * limit;
 
@@ -51,33 +179,9 @@ exports.getListings = async (req, res) => {
       limit: parseInt(limit),
       offset: parseInt(offset),
       order: [[sort, order]],
-      include: [
-        {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'name', 'phone', 'email']
-        },
-        {
-          model: ListingImage,
-          as: 'images',
-          limit: 5
-        },
-        {
-          model: Location,
-          as: 'province',
-          attributes: ['id', 'name']
-        },
-        {
-          model: Location,
-          as: 'district',
-          attributes: ['id', 'name']
-        },
-        {
-          model: Location,
-          as: 'ward',
-          attributes: ['id', 'name']
-        }
-      ]
+      include,
+      distinct: true,
+      subQuery: false
     });
 
     res.json({
