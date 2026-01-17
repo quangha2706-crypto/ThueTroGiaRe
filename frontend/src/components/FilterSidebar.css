@@ -1,27 +1,55 @@
+/* Mobile-first FilterSidebar Styles */
 .filter-sidebar {
   background: white;
-  border-radius: 8px;
-  padding: 20px;
+  border-radius: 0;
+  padding: 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 20px;
-  max-height: calc(100vh - 40px);
+  height: 100%;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tablet and up */
+@media (min-width: 640px) {
+  .filter-sidebar {
+    padding: 1.25rem;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .filter-sidebar {
+    border-radius: 8px;
+    padding: 1.5rem;
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+  }
 }
 
 .filter-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
   border-bottom: 2px solid #e0e0e0;
+  flex-shrink: 0;
 }
 
 .filter-header h3 {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.125rem;
   color: #333;
+  font-weight: 600;
+}
+
+/* Tablet and up */
+@media (min-width: 640px) {
+  .filter-header h3 {
+    font-size: 1.2rem;
+  }
 }
 
 .btn-clear-filters {
@@ -29,83 +57,139 @@
   border: none;
   color: #e74c3c;
   cursor: pointer;
-  font-size: 0.9rem;
-  padding: 5px 10px;
-  transition: color 0.3s;
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+  transition: all 0.3s;
+  border-radius: 0.25rem;
+  min-height: var(--min-touch-target);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-clear-filters:hover {
   color: #c0392b;
-  text-decoration: underline;
+  background: rgba(231, 76, 60, 0.1);
+}
+
+.btn-clear-filters:active {
+  transform: scale(0.95);
 }
 
 .filter-section {
-  margin-bottom: 25px;
-  padding-bottom: 20px;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
   border-bottom: 1px solid #f0f0f0;
 }
 
 .filter-section:last-of-type {
   border-bottom: none;
+  margin-bottom: 0;
 }
 
 .filter-section h4 {
-  margin: 0 0 15px 0;
-  font-size: 1rem;
+  margin: 0 0 0.875rem 0;
+  font-size: 0.95rem;
   color: #555;
   font-weight: 600;
+}
+
+/* Tablet and up */
+@media (min-width: 640px) {
+  .filter-section h4 {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
 }
 
 .range-inputs {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Desktop: No wrap */
+@media (min-width: 1024px) {
+  .range-inputs {
+    flex-wrap: nowrap;
+    gap: 0.75rem;
+  }
 }
 
 .range-inputs input {
   flex: 1;
   min-width: 0;
+  min-height: var(--min-touch-target);
 }
 
 .range-inputs span {
   color: #999;
+  font-weight: 500;
 }
 
 .checkbox-group {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.75rem;
 }
 
 .checkbox-label {
   display: flex;
   align-items: center;
   cursor: pointer;
-  padding: 5px 0;
-  transition: color 0.3s;
+  padding: 0.5rem 0;
+  transition: all 0.3s;
+  border-radius: 0.25rem;
+  min-height: var(--min-touch-target);
 }
 
 .checkbox-label:hover {
   color: #3498db;
+  background: rgba(52, 152, 219, 0.05);
+  padding-left: 0.5rem;
+}
+
+.checkbox-label:active {
+  transform: scale(0.98);
 }
 
 .checkbox-label input[type="checkbox"] {
-  margin-right: 10px;
+  margin-right: 0.75rem;
   cursor: pointer;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  flex-shrink: 0;
 }
 
 .checkbox-label span {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: #666;
+  line-height: 1.4;
+}
+
+/* Tablet and up */
+@media (min-width: 640px) {
+  .checkbox-label span {
+    font-size: 0.95rem;
+  }
 }
 
 .btn-apply-filters {
   width: 100%;
-  margin-top: 20px;
-  padding: 12px;
+  margin-top: auto;
+  padding: 0.875rem 1rem;
   font-weight: 600;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* Tablet and up */
+@media (min-width: 640px) {
+  .btn-apply-filters {
+    padding: 1rem;
+  }
 }
 
 /* Scrollbar styling */
@@ -125,24 +209,4 @@
 
 .filter-sidebar::-webkit-scrollbar-thumb:hover {
   background: #555;
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-  .filter-sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    max-height: 100vh;
-    border-radius: 0;
-    z-index: 1000;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease-in-out;
-  }
-
-  .filter-sidebar.open {
-    transform: translateX(0);
-  }
 }
