@@ -47,4 +47,11 @@ export const locationsAPI = {
   getWards: (districtId) => api.get('/locations/wards', { params: { district_id: districtId } }),
 };
 
+// Filters API
+export const filtersAPI = {
+  getAmenities: () => api.get('/filters/amenities'),
+  getEnvironments: () => api.get('/filters/environments'),
+  getAudiences: () => api.get('/filters/audiences'),
+};
+
 export default api;
