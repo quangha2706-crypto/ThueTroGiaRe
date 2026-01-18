@@ -1,6 +1,13 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
+// Role constants for RBAC
+const ROLES = {
+  USER: 'USER',
+  ADMIN: 'ADMIN',
+  SUPER_ADMIN: 'SUPER_ADMIN'
+};
+
 const User = sequelize.define('User', {
   id: {
     type: DataTypes.INTEGER,
@@ -27,6 +34,17 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING(255),
     allowNull: false
   },
+  role: {
+    type: DataTypes.STRING(50),
+    defaultValue: ROLES.USER,
+    validate: {
+      isIn: [[ROLES.USER, ROLES.ADMIN, ROLES.SUPER_ADMIN]]
+    }
+  },
+  is_locked: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
   created_at: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW
@@ -35,5 +53,16 @@ const User = sequelize.define('User', {
   tableName: 'users',
   timestamps: false
 });
+
+// Static methods for role checking
+User.ROLES = ROLES;
+
+User.prototype.isAdmin = function() {
+  return this.role === ROLES.ADMIN || this.role === ROLES.SUPER_ADMIN;
+};
+
+User.prototype.isSuperAdmin = function() {
+  return this.role === ROLES.SUPER_ADMIN;
+};
 
 module.exports = User;

@@ -28,17 +28,18 @@ exports.register = async (req, res) => {
     // Hash password
     const password_hash = await bcrypt.hash(password, 10);
 
-    // Create user
+    // Create user with default USER role
     const user = await User.create({
       name,
       email,
       phone,
-      password_hash
+      password_hash,
+      role: User.ROLES.USER
     });
 
-    // Generate token
+    // Generate token with role
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET || 'your-super-secret-jwt-key',
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
@@ -51,7 +52,8 @@ exports.register = async (req, res) => {
           id: user.id,
           name: user.name,
           email: user.email,
-          phone: user.phone
+          phone: user.phone,
+          role: user.role
         },
         token
       }
@@ -88,6 +90,14 @@ exports.login = async (req, res) => {
       });
     }
 
+    // Check if account is locked
+    if (user.is_locked) {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.' 
+      });
+    }
+
     // Check password
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
@@ -97,11 +107,14 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Generate token
+    // Generate token with role - shorter expiry for admin
+    const isAdmin = user.role === User.ROLES.ADMIN || user.role === User.ROLES.SUPER_ADMIN;
+    const expiresIn = isAdmin ? '4h' : (process.env.JWT_EXPIRES_IN || '7d');
+    
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET || 'your-super-secret-jwt-key',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      { expiresIn }
     );
 
     res.json({
@@ -112,7 +125,8 @@ exports.login = async (req, res) => {
           id: user.id,
           name: user.name,
           email: user.email,
-          phone: user.phone
+          phone: user.phone,
+          role: user.role
         },
         token
       }
@@ -131,13 +145,20 @@ exports.login = async (req, res) => {
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id, {
-      attributes: ['id', 'name', 'email', 'phone', 'created_at']
+      attributes: ['id', 'name', 'email', 'phone', 'role', 'is_locked', 'created_at']
     });
 
     if (!user) {
       return res.status(404).json({ 
         success: false, 
         message: 'Không tìm thấy người dùng' 
+      });
+    }
+
+    if (user.is_locked) {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Tài khoản đã bị khóa' 
       });
     }
 

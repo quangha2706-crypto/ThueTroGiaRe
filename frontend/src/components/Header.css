@@ -262,3 +262,21 @@
     display: none;
   }
 }
+
+/* Admin Button Style */
+.btn-admin {
+  background: #6c5ce7;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.btn-admin:hover {
+  background: #5f4dd0;
+  color: white;
+}

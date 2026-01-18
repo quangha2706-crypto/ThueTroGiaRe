@@ -54,4 +54,34 @@ export const filtersAPI = {
   getAudiences: () => api.get('/filters/audiences'),
 };
 
+// Admin API
+export const adminAPI = {
+  // Dashboard
+  getDashboardStats: () => api.get('/admin/dashboard/stats'),
+  getActivityLogs: (params) => api.get('/admin/dashboard/activity-logs', { params }),
+
+  // User Management
+  getUsers: (params) => api.get('/admin/users', { params }),
+  getUserById: (id) => api.get(`/admin/users/${id}`),
+  updateUserRole: (id, role) => api.patch(`/admin/users/${id}/role`, { role }),
+  toggleUserLock: (id, is_locked, reason) => api.patch(`/admin/users/${id}/lock`, { is_locked, reason }),
+  resetUserPassword: (id, new_password) => api.post(`/admin/users/${id}/reset-password`, { new_password }),
+
+  // Listing Management
+  getListings: (params) => api.get('/admin/listings', { params }),
+  getPendingListings: (params) => api.get('/admin/listings/pending', { params }),
+  approveListing: (id, admin_note) => api.patch(`/admin/listings/${id}/approve`, { admin_note }),
+  rejectListing: (id, admin_note) => api.patch(`/admin/listings/${id}/reject`, { admin_note }),
+  toggleListingVisibility: (id, status, reason) => api.patch(`/admin/listings/${id}/visibility`, { status, reason }),
+  updateListing: (id, data) => api.put(`/admin/listings/${id}`, data),
+  deleteListing: (id, reason) => api.delete(`/admin/listings/${id}`, { data: { reason } }),
+
+  // Report Management
+  getReports: (params) => api.get('/admin/reports', { params }),
+  getPendingReports: (params) => api.get('/admin/reports/pending', { params }),
+  getReportById: (id) => api.get(`/admin/reports/${id}`),
+  updateReportStatus: (id, data) => api.patch(`/admin/reports/${id}`, data),
+  handleReport: (id, action, admin_note) => api.post(`/admin/reports/${id}/handle`, { action, admin_note }),
+};
+
 export default api;

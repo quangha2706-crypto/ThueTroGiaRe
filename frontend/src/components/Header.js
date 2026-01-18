@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import './Header.css';
 
 const Header = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -63,6 +63,9 @@ const Header = () => {
                 <>
                   <span className="user-name">Xin chào, {user?.name}</span>
                   <Link to="/dashboard" className="btn btn-primary" onClick={closeMobileMenu}>Dashboard</Link>
+                  {isAdmin && (
+                    <Link to="/admin" className="btn btn-admin" onClick={closeMobileMenu}>🔒 Admin</Link>
+                  )}
                   <button onClick={handleLogout} className="btn btn-outline">
                     Đăng xuất
                   </button>

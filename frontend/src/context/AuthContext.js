@@ -3,6 +3,13 @@ import { authAPI } from '../services/api';
 
 const AuthContext = createContext();
 
+// Role constants matching backend
+export const ROLES = {
+  USER: 'USER',
+  ADMIN: 'ADMIN',
+  SUPER_ADMIN: 'SUPER_ADMIN'
+};
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -72,6 +79,10 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  // Check if user has admin role
+  const isAdmin = user?.role === ROLES.ADMIN || user?.role === ROLES.SUPER_ADMIN;
+  const isSuperAdmin = user?.role === ROLES.SUPER_ADMIN;
+
   const value = {
     user,
     loading,
@@ -79,6 +90,9 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     isAuthenticated: !!user,
+    isAdmin,
+    isSuperAdmin,
+    role: user?.role || null,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
