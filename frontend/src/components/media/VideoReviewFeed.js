@@ -36,6 +36,9 @@ const VideoReviewFeed = ({ reviews = [], onLike, onReport, currentUserId }) => {
   }, [reviews]);
 
   const handleLike = useCallback(async (mediaId, index) => {
+    // Store original state for rollback
+    const originalLikeState = likedVideos[mediaId] || false;
+    
     // Optimistic update
     setLikedVideos(prev => ({
       ...prev,
@@ -52,14 +55,14 @@ const VideoReviewFeed = ({ reviews = [], onLike, onReport, currentUserId }) => {
       try {
         await onLike(mediaId);
       } catch (error) {
-        // Revert on error
+        // Revert to original state on error
         setLikedVideos(prev => ({
           ...prev,
-          [mediaId]: !prev[mediaId]
+          [mediaId]: originalLikeState
         }));
       }
     }
-  }, [onLike]);
+  }, [onLike, likedVideos]);
 
   const handleDoubleTap = useCallback((mediaId, index) => {
     if (!likedVideos[mediaId]) {
@@ -179,7 +182,7 @@ const VideoReviewFeed = ({ reviews = [], onLike, onReport, currentUserId }) => {
                 >
                   <span className="action-icon">{isLiked ? '❤️' : '🤍'}</span>
                   <span className="action-count">
-                    {(media.like_count || 0) + (isLiked && !media.userLiked ? 1 : 0)}
+                    {(media.like_count || 0) + (isLiked ? 1 : 0)}
                   </span>
                 </button>
 

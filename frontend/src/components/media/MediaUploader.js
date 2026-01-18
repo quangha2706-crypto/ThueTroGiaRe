@@ -50,7 +50,7 @@ const MediaUploader = ({
     const preview = URL.createObjectURL(file);
     
     const fileData = {
-      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
       file,
       name: file.name,
       type: isVideo ? 'video' : 'image',

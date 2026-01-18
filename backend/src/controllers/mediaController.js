@@ -9,6 +9,13 @@ const Review = require('../models/Review');
 const ReviewVideo = require('../models/ReviewVideo');
 const ReviewImage = require('../models/ReviewImage');
 
+// Configuration constants
+const MEDIA_CONFIG = {
+  MAX_REVIEW_MEDIA_PER_USER: parseInt(process.env.MAX_REVIEW_MEDIA_PER_USER) || 5,
+  MAX_VIDEO_DURATION_SECONDS: parseInt(process.env.MAX_VIDEO_DURATION_SECONDS) || 60,
+  REPORT_HIDE_THRESHOLD: parseInt(process.env.REPORT_HIDE_THRESHOLD) || 3
+};
+
 // Room tag labels for display
 const ROOM_TAG_LABELS = {
   bedroom: 'Phòng ngủ',
@@ -295,7 +302,7 @@ exports.uploadReviewMedia = async (req, res) => {
       });
     }
 
-    // Limit check: max 5 media per user per listing
+    // Limit check
     const existingCount = await ListingMedia.count({
       where: {
         listing_id: id,
@@ -304,18 +311,18 @@ exports.uploadReviewMedia = async (req, res) => {
       }
     });
 
-    if (existingCount >= 5) {
+    if (existingCount >= MEDIA_CONFIG.MAX_REVIEW_MEDIA_PER_USER) {
       return res.status(400).json({
         success: false,
-        message: 'Bạn đã đạt giới hạn 5 media cho tin đăng này'
+        message: `Bạn đã đạt giới hạn ${MEDIA_CONFIG.MAX_REVIEW_MEDIA_PER_USER} media cho tin đăng này`
       });
     }
 
-    // Video duration limit: max 60 seconds
-    if (media_type === 'video' && duration_seconds && duration_seconds > 60) {
+    // Video duration limit
+    if (media_type === 'video' && duration_seconds && duration_seconds > MEDIA_CONFIG.MAX_VIDEO_DURATION_SECONDS) {
       return res.status(400).json({
         success: false,
-        message: 'Video không được dài quá 60 giây'
+        message: `Video không được dài quá ${MEDIA_CONFIG.MAX_VIDEO_DURATION_SECONDS} giây`
       });
     }
 
@@ -425,7 +432,7 @@ exports.reportMedia = async (req, res) => {
     await media.increment('report_count');
 
     // If report count exceeds threshold, mark as reported
-    if (media.report_count >= 3) {
+    if (media.report_count >= MEDIA_CONFIG.REPORT_HIDE_THRESHOLD) {
       await media.update({ visibility_status: 'reported' });
     }
 
