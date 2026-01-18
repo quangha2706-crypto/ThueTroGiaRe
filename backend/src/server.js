@@ -7,14 +7,18 @@ const authRoutes = require('./routes/authRoutes');
 const listingRoutes = require('./routes/listingRoutes');
 const locationRoutes = require('./routes/locationRoutes');
 const filterRoutes = require('./routes/filterRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 // Import models to set up associations
+const User = require('./models/User');
 const Listing = require('./models/Listing');
 const Amenity = require('./models/Amenity');
 const EnvironmentTag = require('./models/EnvironmentTag');
 const TargetAudience = require('./models/TargetAudience');
 const Review = require('./models/Review');
 const ReviewVideo = require('./models/ReviewVideo');
+const AdminLog = require('./models/AdminLog');
+const Report = require('./models/Report');
 
 // Initialize associations
 if (Listing.associate) Listing.associate();
@@ -23,6 +27,13 @@ if (EnvironmentTag.associate) EnvironmentTag.associate();
 if (TargetAudience.associate) TargetAudience.associate();
 if (Review.associate) Review.associate();
 if (ReviewVideo.associate) ReviewVideo.associate();
+
+// Set up AdminLog associations
+AdminLog.belongsTo(User, { foreignKey: 'admin_id', as: 'admin' });
+
+// Set up Report associations
+Report.belongsTo(User, { foreignKey: 'reporter_id', as: 'reporter' });
+Report.belongsTo(User, { foreignKey: 'handled_by', as: 'handler' });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -48,6 +59,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/listings', listingRoutes);
 app.use('/api/locations', locationRoutes);
 app.use('/api/filters', filterRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

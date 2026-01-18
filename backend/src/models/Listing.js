@@ -6,6 +6,13 @@ const Location = require('./Location');
 // Import will be done after model definition to avoid circular dependency
 let Amenity, EnvironmentTag, TargetAudience, Review;
 
+// Approval status constants
+const APPROVAL_STATUS = {
+  PENDING: 'pending',
+  APPROVED: 'approved',
+  REJECTED: 'rejected'
+};
+
 const Listing = sequelize.define('Listing', {
   id: {
     type: DataTypes.INTEGER,
@@ -78,6 +85,29 @@ const Listing = sequelize.define('Listing', {
       isIn: [['active', 'inactive', 'deleted']]
     }
   },
+  approval_status: {
+    type: DataTypes.STRING(50),
+    defaultValue: APPROVAL_STATUS.PENDING,
+    validate: {
+      isIn: [[APPROVAL_STATUS.PENDING, APPROVAL_STATUS.APPROVED, APPROVAL_STATUS.REJECTED]]
+    }
+  },
+  admin_note: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  reviewed_by: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'users',
+      key: 'id'
+    }
+  },
+  reviewed_at: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
   created_at: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW
@@ -90,6 +120,9 @@ const Listing = sequelize.define('Listing', {
   tableName: 'listings',
   timestamps: false
 });
+
+// Export constants
+Listing.APPROVAL_STATUS = APPROVAL_STATUS;
 
 // Associations
 Listing.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
