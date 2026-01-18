@@ -12,6 +12,29 @@ const REVIEW_CONFIG = {
   DEFAULT_PAGE_SIZE: 10
 };
 
+// URL validation helper
+const isValidUrl = (string) => {
+  try {
+    const url = new URL(string);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
+// Validate media array items
+const validateMediaItems = (mediaArray) => {
+  if (!Array.isArray(mediaArray)) return false;
+  
+  for (const item of mediaArray) {
+    if (!item || typeof item !== 'object') return false;
+    if (!['video', 'image'].includes(item.media_type)) return false;
+    if (!item.url || typeof item.url !== 'string' || !isValidUrl(item.url)) return false;
+    if (item.thumbnail_url && !isValidUrl(item.thumbnail_url)) return false;
+  }
+  return true;
+};
+
 // Get reviews for a room/listing
 exports.getReviewsByRoom = async (req, res) => {
   try {
@@ -253,11 +276,22 @@ exports.createReview = async (req, res) => {
       });
     }
 
-    // Determine role based on user
+    // Validate media array if provided
+    if (media && media.length > 0) {
+      if (!validateMediaItems(media)) {
+        await transaction.rollback();
+        return res.status(400).json({
+          success: false,
+          message: 'Dữ liệu media không hợp lệ. URL phải là http/https hợp lệ.'
+        });
+      }
+    }
+
+    // Determine role based on user (room.user_id may be null for some listings)
     let role = 'renter';
     if (req.user.role === 'admin') {
       role = 'admin';
-    } else if (room.user_id === userId) {
+    } else if (room.user_id && room.user_id === userId) {
       role = 'landlord';
     }
 

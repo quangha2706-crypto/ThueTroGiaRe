@@ -3,6 +3,16 @@ import { useAuth } from '../../context/AuthContext';
 import { reviewsAPI } from '../../services/api';
 import './ReviewForm.css';
 
+// URL validation helper
+const isValidUrl = (string) => {
+  try {
+    const url = new URL(string);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
 const ReviewForm = ({ roomId, onSubmitted, onCancel }) => {
   const { user, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
@@ -11,6 +21,8 @@ const ReviewForm = ({ roomId, onSubmitted, onCancel }) => {
     rating: 5
   });
   const [media, setMedia] = useState([]);
+  const [mediaUrl, setMediaUrl] = useState('');
+  const [mediaError, setMediaError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -29,16 +41,32 @@ const ReviewForm = ({ roomId, onSubmitted, onCancel }) => {
     }));
   };
 
+  const handleMediaUrlChange = (e) => {
+    setMediaUrl(e.target.value);
+    setMediaError(null);
+  };
+
   const handleMediaAdd = () => {
-    const url = window.prompt('Nhập URL ảnh hoặc video:');
-    if (url && url.trim()) {
-      const isVideo = url.includes('video') || url.endsWith('.mp4') || url.endsWith('.webm');
-      setMedia(prev => [...prev, {
-        url: url.trim(),
-        media_type: isVideo ? 'video' : 'image',
-        thumbnail_url: isVideo ? '' : url.trim()
-      }]);
+    const url = mediaUrl.trim();
+    
+    if (!url) {
+      setMediaError('Vui lòng nhập URL');
+      return;
     }
+
+    if (!isValidUrl(url)) {
+      setMediaError('URL không hợp lệ. Vui lòng nhập URL http/https hợp lệ.');
+      return;
+    }
+
+    const isVideo = url.includes('video') || url.endsWith('.mp4') || url.endsWith('.webm') || url.endsWith('.mov');
+    setMedia(prev => [...prev, {
+      url: url,
+      media_type: isVideo ? 'video' : 'image',
+      thumbnail_url: isVideo ? '' : url
+    }]);
+    setMediaUrl('');
+    setMediaError(null);
   };
 
   const handleMediaRemove = (index) => {
@@ -177,18 +205,30 @@ const ReviewForm = ({ roomId, onSubmitted, onCancel }) => {
                 </button>
               </div>
             ))}
-            
-            {media.length < 10 && (
+          </div>
+          
+          {/* Media URL Input */}
+          {media.length < 10 && (
+            <div className="media-url-input">
+              <input
+                type="url"
+                value={mediaUrl}
+                onChange={handleMediaUrlChange}
+                placeholder="Nhập URL ảnh hoặc video (https://...)"
+                className="media-url-field"
+              />
               <button
                 type="button"
-                className="add-media-btn"
+                className="add-media-btn-inline"
                 onClick={handleMediaAdd}
               >
-                <span className="add-icon">+</span>
-                <span className="add-label">Thêm ảnh/video</span>
+                + Thêm
               </button>
-            )}
-          </div>
+            </div>
+          )}
+          {mediaError && (
+            <p className="media-error">{mediaError}</p>
+          )}
           <p className="media-hint">Tối đa 10 ảnh và video dài tối đa 2 phút</p>
         </div>
 
