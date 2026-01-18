@@ -852,7 +852,6 @@ main {
 .auth-page,
 .dashboard-page,
 .create-listing-page {
-  will-change: auto;
   transform: translateZ(0);
 }
 
