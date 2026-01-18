@@ -10,11 +10,32 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import CreateListing from './pages/CreateListing';
+import { 
+  AdminDashboard, 
+  AdminUsers, 
+  AdminListings, 
+  AdminPending, 
+  AdminReports 
+} from './pages/admin';
 import './App.css';
 
 // Separate component to access useLocation hook inside Router
 function AppContent() {
   const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  
+  // Admin routes have their own layout
+  if (isAdminRoute) {
+    return (
+      <Routes location={location}>
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
+        <Route path="/admin/listings" element={<AdminListings />} />
+        <Route path="/admin/pending" element={<AdminPending />} />
+        <Route path="/admin/reports" element={<AdminReports />} />
+      </Routes>
+    );
+  }
   
   return (
     <div className="App">
